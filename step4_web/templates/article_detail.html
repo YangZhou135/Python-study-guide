@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 文章内容 -->
+    <div class="col-lg-8">
+        <article class="card">
+            {% if article.featured_image %}
+            <img src="{{ url_for('static', filename='uploads/' + article.featured_image) }}" 
+                 class="card-img-top" alt="{{ article.title }}" style="height: 300px; object-fit: cover;">
+            {% endif %}
+            
+            <div class="card-body">
+                <!-- 文章标题 -->
+                <h1 class="card-title">{{ article.title }}</h1>
+                
+                <!-- 文章元信息 -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <small class="text-muted">
+                            <i class="fas fa-user"></i> {{ article.author }} |
+                            <i class="fas fa-calendar"></i> {{ article.created_at.strftime('%Y-%m-%d %H:%M') }} |
+                            <i class="fas fa-eye"></i> {{ article.views }} 次浏览 |
+                            <i class="fas fa-heart"></i> <span id="likes-count">{{ article.likes }}</span> 个赞 |
+                            <i class="fas fa-clock"></i> 约 {{ article.get_reading_time() }} 分钟阅读
+                        </small>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div>
+                        {% if current_user %}
+                        <button class="btn btn-outline-danger btn-sm" onclick="likeArticle({{ article.id }})">
+                            <i class="fas fa-heart"></i> 点赞
+                        </button>
+                        {% endif %}
+                        
+                        {% if current_user and current_user.username == article.author %}
+                        <a href="{{ url_for('edit_article', article_id=article.id) }}" 
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- 文章标签 -->
+                {% if article.tags %}
+                <div class="mb-4">
+                    {% for tag in article.tags %}
+                    <span class="badge bg-secondary me-1">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- 文章内容 -->
+                <div class="article-content">
+                    {{ article.content|replace('\n', '<br>')|safe }}
+                </div>
+            </div>
+        </article>
+        
+        <!-- 评论区 -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-comments"></i> 评论 ({{ article.comments|length }})</h5>
+            </div>
+            <div class="card-body">
+                <!-- 评论表单 -->
+                {% if current_user %}
+                <form method="POST" action="{{ url_for('add_comment', article_id=article.id) }}" class="mb-4">
+                    {{ comment_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ comment_form.content.label(class="form-label") }}
+                        {{ comment_form.content(class="form-control", rows="3", placeholder="写下您的评论...") }}
+                        {% if comment_form.content.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in comment_form.content.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> 发表评论
+                    </button>
+                </form>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 
+                    <a href="{{ url_for('login') }}" class="text-decoration-none">登录</a> 
+                    后可以发表评论
+                </div>
+                {% endif %}
+                
+                <!-- 评论列表 -->
+                {% if article.comments %}
+                    {% for comment in article.comments %}
+                    {% if comment.is_approved %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ comment.author }}</strong>
+                                <small class="text-muted ms-2">
+                                    {{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                </small>
+                            </div>
+                        </div>
+                        <p class="mt-2 mb-0">{{ comment.content }}</p>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-comment-slash fa-2x mb-2"></i>
+                    <p>还没有评论，来发表第一个评论吧！</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 侧边栏 -->
+    <div class="col-lg-4">
+        <!-- 作者信息 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6><i class="fas fa-user"></i> 作者信息</h6>
+            </div>
+            <div class="card-body">
+                <h6>{{ article.author }}</h6>
+                <p class="text-muted small">
+                    {% set author_user = article.author %}
+                    {% for user in [] %}
+                        {% if user.username == author_user %}
+                            已发布 {{ user.articles|length }} 篇文章
+                        {% endif %}
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+        
+        <!-- 文章统计 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6><i class="fas fa-chart-bar"></i> 文章统计</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="h4 text-primary">{{ article.views }}</div>
+                        <small class="text-muted">浏览量</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="h4 text-danger">{{ article.likes }}</div>
+                        <small class="text-muted">点赞数</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="h4 text-success">{{ article.comments|length }}</div>
+                        <small class="text-muted">评论数</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 相关文章 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6><i class="fas fa-list"></i> 相关文章</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">功能开发中...</p>
+            </div>
+        </div>
+        
+        <!-- 分享 -->
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-share-alt"></i> 分享文章</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="copyLink()">
+                        <i class="fas fa-link"></i> 复制链接
+                    </button>
+                    <button class="btn btn-outline-success btn-sm" onclick="shareToWeChat()">
+                        <i class="fab fa-weixin"></i> 分享到微信
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 点赞功能
+function likeArticle(articleId) {
+    fetch(`/api/article/${articleId}/like`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('likes-count').textContent = data.likes;
+            // 显示成功提示
+            showToast('点赞成功！', 'success');
+        } else {
+            showToast('点赞失败，请重试', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('网络错误，请重试', 'error');
+    });
+}
+
+// 复制链接
+function copyLink() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        showToast('链接已复制到剪贴板', 'success');
+    }, function(err) {
+        console.error('复制失败: ', err);
+        showToast('复制失败，请手动复制', 'error');
+    });
+}
+
+// 分享到微信（示例）
+function shareToWeChat() {
+    showToast('请使用微信扫一扫分享', 'info');
+}
+
+// 显示提示消息
+function showToast(message, type) {
+    // 创建提示元素
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // 3秒后自动移除
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}

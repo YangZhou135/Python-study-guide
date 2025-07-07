@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>
+                    <i class="fas fa-pen"></i> {{ title }}
+                    {% if article %}
+                    <small class="text-muted">- {{ article.title }}</small>
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="article-form">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- 标题 -->
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""), placeholder="输入文章标题...") }}
+                        {% if form.title.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- 摘要 -->
+                    <div class="mb-3">
+                        {{ form.summary.label(class="form-label") }}
+                        {{ form.summary(class="form-control" + (" is-invalid" if form.summary.errors else ""), rows="3", placeholder="输入文章摘要（可选）...") }}
+                        {% if form.summary.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.summary.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">摘要将显示在文章列表中，如果不填写将自动截取文章开头部分</div>
+                    </div>
+                    
+                    <!-- 内容 -->
+                    <div class="mb-3">
+                        {{ form.content.label(class="form-label") }}
+                        {{ form.content(class="form-control" + (" is-invalid" if form.content.errors else ""), rows="15", placeholder="开始写作...") }}
+                        {% if form.content.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.content.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">支持Markdown格式，可以使用 **粗体**、*斜体*、`代码` 等格式</div>
+                    </div>
+                    
+                    <!-- 标签 -->
+                    <div class="mb-3">
+                        {{ form.tags.label(class="form-label") }}
+                        {{ form.tags(class="form-control" + (" is-invalid" if form.tags.errors else ""), placeholder="输入标签，用逗号分隔...") }}
+                        {% if form.tags.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.tags.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">例如：Python, Web开发, Flask</div>
+                    </div>
+                    
+                    <!-- 特色图片 -->
+                    <div class="mb-3">
+                        {{ form.featured_image.label(class="form-label") }}
+                        {{ form.featured_image(class="form-control" + (" is-invalid" if form.featured_image.errors else "")) }}
+                        {% if form.featured_image.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.featured_image.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">支持 JPG、PNG、GIF 格式，最大 16MB</div>
+                        
+                        {% if article and article.featured_image %}
+                        <div class="mt-2">
+                            <small class="text-muted">当前图片：</small><br>
+                            <img src="{{ url_for('static', filename='uploads/' + article.featured_image) }}" 
+                                 alt="当前特色图片" class="img-thumbnail" style="max-width: 200px;">
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- 发布选项 -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            {{ form.is_published(class="form-check-input") }}
+                            {{ form.is_published.label(class="form-check-label") }}
+                        </div>
+                        <div class="form-text">取消勾选将保存为草稿</div>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-save"></i> 
+                                {% if article %}更新文章{% else %}发布文章{% endif %}
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="saveDraft()">
+                                <i class="fas fa-file-alt"></i> 保存草稿
+                            </button>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-danger">
+                                <i class="fas fa-times"></i> 取消
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 侧边栏 -->
+    <div class="col-lg-4">
+        <!-- 写作提示 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6><i class="fas fa-lightbulb"></i> 写作提示</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        标题要简洁明了，吸引读者
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        摘要概括文章主要内容
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        使用标签帮助读者找到文章
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        添加特色图片增加吸引力
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        内容结构清晰，段落分明
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Markdown语法 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6><i class="fab fa-markdown"></i> Markdown语法</h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <div class="mb-2">
+                        <code># 标题1</code><br>
+                        <code>## 标题2</code>
+                    </div>
+                    <div class="mb-2">
+                        <code>**粗体**</code><br>
+                        <code>*斜体*</code>
+                    </div>
+                    <div class="mb-2">
+                        <code>`代码`</code><br>
+                        <code>```代码块```</code>
+                    </div>
+                    <div class="mb-2">
+                        <code>[链接](URL)</code><br>
+                        <code>![图片](URL)</code>
+                    </div>
+                    <div class="mb-2">
+                        <code>- 列表项</code><br>
+                        <code>1. 有序列表</code>
+                    </div>
+                    <div>
+                        <code>> 引用</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 快捷操作 -->
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-keyboard"></i> 快捷操作</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="insertMarkdown('**', '**')">
+                        <i class="fas fa-bold"></i> 粗体
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="insertMarkdown('*', '*')">
+                        <i class="fas fa-italic"></i> 斜体
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="insertMarkdown('`', '`')">
+                        <i class="fas fa-code"></i> 代码
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="insertMarkdown('[', '](URL)')">
+                        <i class="fas fa-link"></i> 链接
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="insertMarkdown('![', '](URL)')">
+                        <i class="fas fa-image"></i> 图片
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 自动保存草稿
+let autoSaveInterval;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 恢复草稿
+    FormUtils.restoreDraft('article-form');
+    
+    // 开始自动保存
+    autoSaveInterval = setInterval(saveDraft, 30000); // 每30秒自动保存
+    
+    // 监听表单变化
+    const form = document.getElementById('article-form');
+    form.addEventListener('input', function() {
+        // 重置自动保存计时器
+        clearInterval(autoSaveInterval);
+        autoSaveInterval = setInterval(saveDraft, 30000);
+    });
+});
+
+// 保存草稿
+function saveDraft() {
+    const form = document.getElementById('article-form');
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+    
+    // 保存到本地存储
+    localStorage.setItem('draft_article-form', JSON.stringify(data));
+    
+    // 显示保存提示
+    showToast('草稿已保存', 'info', 1000);
+}
+
+// 插入Markdown语法
+function insertMarkdown(before, after) {
+    const textarea = document.getElementById('content');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    
+    const newText = before + selectedText + after;
+    textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
+    
+    // 设置光标位置
+    const newCursorPos = start + before.length + selectedText.length;
+    textarea.setSelectionRange(newCursorPos, newCursorPos);
+    textarea.focus();
+}
+
+// 表单提交时清除草稿
+document.getElementById('article-form').addEventListener('submit', function() {
+    FormUtils.clearDraft('article-form');
+    clearInterval(autoSaveInterval);
+});
+
+// 页面卸载时保存草稿
+window.addEventListener('beforeunload', function() {
+    saveDraft();
+});
+</script>
+{% endblock %}

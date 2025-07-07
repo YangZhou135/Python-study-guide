@@ -1,0 +1,42 @@
+[
+  {
+    "username": "admin",
+    "email": "admin@example.com",
+    "created_at": "2025-07-07T11:45:09.379862",
+    "is_active": true,
+    "last_login": null,
+    "login_count": 0,
+    "password_hash": "0852ce394d17ce474535fb4ba403ee91ea791b7f59d45495ad96d6c47369cf61d6ff46e7cb7f8d910eedea9f47c62bf2",
+    "article_count": 0
+  },
+  {
+    "username": "张三",
+    "email": "zhangsan@example.com",
+    "created_at": "2025-07-07T11:45:09.442946",
+    "is_active": true,
+    "last_login": null,
+    "login_count": 0,
+    "password_hash": "64d102d2d2b1b85a20df98e64de58466cecb0e2757e9a57455c934e2a04e0e029bdb07f8d7482c348f364a0b1fcd1eb9",
+    "article_count": 0
+  },
+  {
+    "username": "李四",
+    "email": "lisi@example.com",
+    "created_at": "2025-07-07T11:45:09.508601",
+    "is_active": true,
+    "last_login": null,
+    "login_count": 0,
+    "password_hash": "1707dce98d31395b453aadfa20d5d0bc9960693d33758eecc482d8ccc1f96d831e29102601b1afeee9802a501b48198b",
+    "article_count": 0
+  },
+  {
+    "username": "王五",
+    "email": "wangwu@example.com",
+    "created_at": "2025-07-07T11:45:09.577054",
+    "is_active": true,
+    "last_login": null,
+    "login_count": 0,
+    "password_hash": "d171494ce53e685b6e0e8df75a562941953e33dd3a75aca1848c3828708ac5e273997f6d8869e3cc943ffa950e87248d",
+    "article_count": 0
+  }
+]

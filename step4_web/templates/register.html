@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}注册 - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card">
+            <div class="card-header text-center">
+                <h4><i class="fas fa-user-plus"></i> 用户注册</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.username.label(class="form-label") }}
+                        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">用户名将作为您的作者署名显示</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">请输入有效的邮箱地址</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.password.label(class="form-label") }}
+                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
+                        {% if form.password.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">密码长度至少6个字符</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.password2.label(class="form-label") }}
+                        {{ form.password2(class="form-control" + (" is-invalid" if form.password2.errors else "")) }}
+                        {% if form.password2.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.password2.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> 注册账号
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <p class="mb-0">
+                    已有账号？ 
+                    <a href="{{ url_for('login') }}" class="text-decoration-none">
+                        <i class="fas fa-sign-in-alt"></i> 立即登录
+                    </a>
+                </p>
+            </div>
+        </div>
+        
+        <!-- 注册说明 -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6><i class="fas fa-lightbulb"></i> 注册说明</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small text-muted">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        注册后即可开始写作和发布文章
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        支持Markdown格式编写文章
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        可以上传图片作为文章封面
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        文章支持标签分类和搜索
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        读者可以对文章进行评论和点赞
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

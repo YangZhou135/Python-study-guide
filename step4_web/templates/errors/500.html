@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}服务器错误 - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="text-center py-5">
+                <!-- 500图标 -->
+                <div class="mb-4">
+                    <i class="fas fa-exclamation-triangle fa-5x text-warning"></i>
+                </div>
+                
+                <!-- 错误代码 -->
+                <h1 class="display-1 text-danger fw-bold">500</h1>
+                
+                <!-- 错误信息 -->
+                <h2 class="mb-3">服务器内部错误</h2>
+                <p class="text-muted mb-4">
+                    抱歉，服务器遇到了一个内部错误，无法完成您的请求。<br>
+                    我们的技术团队已经收到通知，正在努力修复这个问题。
+                </p>
+                
+                <!-- 操作按钮 -->
+                <div class="d-flex justify-content-center gap-3 mb-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="fas fa-home"></i> 返回首页
+                    </a>
+                    <button class="btn btn-outline-secondary" onclick="location.reload()">
+                        <i class="fas fa-redo"></i> 重新加载
+                    </button>
+                    <button class="btn btn-outline-info" onclick="reportError()">
+                        <i class="fas fa-bug"></i> 报告问题
+                    </button>
+                </div>
+                
+                <!-- 错误详情（仅开发模式显示） -->
+                {% if config.DEBUG and error_details %}
+                <div class="card text-start">
+                    <div class="card-header bg-danger text-white">
+                        <h6><i class="fas fa-bug"></i> 错误详情（开发模式）</h6>
+                    </div>
+                    <div class="card-body">
+                        <pre class="text-danger small">{{ error_details }}</pre>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- 建议操作 -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-tools"></i> 您可以尝试</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-redo text-info"></i> 
+                                        刷新页面重试
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-clock text-warning"></i> 
+                                        稍后再试
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-home text-success"></i> 
+                                        返回首页
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-search text-primary"></i> 
+                                        搜索其他内容
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-envelope text-danger"></i> 
+                                        联系技术支持
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-bug text-warning"></i> 
+                                        报告这个问题
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 联系信息 -->
+                <div class="mt-4">
+                    <small class="text-muted">
+                        如果问题持续存在，请联系我们：
+                        <a href="mailto:support@example.com" class="text-decoration-none">support@example.com</a>
+                    </small>
+                </div>
+                
+                <!-- 错误ID（用于追踪） -->
+                <div class="mt-2">
+                    <small class="text-muted">
+                        错误ID: <code>{{ error_id or 'ERR-' + moment().format('YYYYMMDDHHmmss') }}</code>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 错误报告模态框 -->
+<div class="modal fade" id="errorReportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-bug"></i> 报告错误
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="errorReportForm">
+                    <div class="mb-3">
+                        <label class="form-label">您的邮箱（可选）</label>
+                        <input type="email" class="form-control" id="reporterEmail" 
+                               placeholder="用于接收问题处理进度">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">问题描述</label>
+                        <textarea class="form-control" id="errorDescription" rows="4" 
+                                  placeholder="请描述您遇到的问题..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">重现步骤（可选）</label>
+                        <textarea class="form-control" id="reproduceSteps" rows="3" 
+                                  placeholder="如何重现这个问题？"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="includeSystemInfo" checked>
+                        <label class="form-check-label" for="includeSystemInfo">
+                            包含系统信息（浏览器、操作系统等）
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitErrorReport()">
+                    <i class="fas fa-paper-plane"></i> 发送报告
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 错误追踪
+document.addEventListener('DOMContentLoaded', function() {
+    // 记录500错误
+    console.error('500 Internal Server Error:', {
+        url: window.location.href,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent
+    });
+    
+    // 发送错误统计（如果有分析工具）
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'server_error', {
+            'error_type': '500',
+            'page_location': window.location.href,
+            'page_title': document.title
+        });
+    }
+});
+
+// 报告错误
+function reportError() {
+    const modal = new bootstrap.Modal(document.getElementById('errorReportModal'));
+    modal.show();
+}
+
+// 提交错误报告
+function submitErrorReport() {
+    const email = document.getElementById('reporterEmail').value;
+    const description = document.getElementById('errorDescription').value;
+    const steps = document.getElementById('reproduceSteps').value;
+    const includeSystemInfo = document.getElementById('includeSystemInfo').checked;
+    
+    if (!description.trim()) {
+        showToast('请描述您遇到的问题', 'error');
+        return;
+    }
+    
+    // 收集系统信息
+    let systemInfo = '';
+    if (includeSystemInfo) {
+        systemInfo = `
+浏览器: ${navigator.userAgent}
+页面URL: ${window.location.href}
+时间: ${new Date().toISOString()}
+屏幕分辨率: ${screen.width}x${screen.height}
+        `.trim();
+    }
+    
+    // 构建报告数据
+    const reportData = {
+        email: email,
+        description: description,
+        reproduceSteps: steps,
+        systemInfo: systemInfo,
+        errorType: '500',
+        errorId: '{{ error_id or "ERR-" + moment().format("YYYYMMDDHHmmss") }}',
+        timestamp: new Date().toISOString()
+    };
+    
+    // 这里应该发送到服务器
+    console.log('错误报告:', reportData);
+    
+    // 模拟发送成功
+    showToast('错误报告已发送，感谢您的反馈！', 'success');
+    
+    // 关闭模态框
+    const modal = bootstrap.Modal.getInstance(document.getElementById('errorReportModal'));
+    modal.hide();
+    
+    // 清空表单
+    document.getElementById('errorReportForm').reset();
+}
+
+// 自动重试功能
+let retryCount = 0;
+const maxRetries = 3;
+
+function autoRetry() {
+    if (retryCount < maxRetries) {
+        retryCount++;
+        showToast(`正在尝试重新加载... (${retryCount}/${maxRetries})`, 'info');
+        
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+    } else {
+        showToast('多次重试失败，请稍后再试或联系技术支持', 'error');
+    }
+}
+
+// 检测网络状态
+function checkNetworkStatus() {
+    if (!navigator.onLine) {
+        showToast('网络连接已断开，请检查网络设置', 'warning');
+        return false;
+    }
+    return true;
+}
+
+// 网络状态变化监听
+window.addEventListener('online', function() {
+    showToast('网络连接已恢复', 'success');
+});
+
+window.addEventListener('offline', function() {
+    showToast('网络连接已断开', 'warning');
+});
+
+// 页面可见性变化监听（用户切换标签页时）
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && checkNetworkStatus()) {
+        // 页面重新可见且网络正常时，可以尝试重新加载
+        console.log('页面重新可见，网络状态正常');
+    }
+});
+</script>
+{% endblock %}

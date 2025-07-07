@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}登录 - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-header text-center">
+                <h4><i class="fas fa-sign-in-alt"></i> 用户登录</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.username.label(class="form-label") }}
+                        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.password.label(class="form-label") }}
+                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
+                        {% if form.password.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        {{ form.remember_me(class="form-check-input") }}
+                        {{ form.remember_me.label(class="form-check-label") }}
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> 登录
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <p class="mb-0">
+                    还没有账号？ 
+                    <a href="{{ url_for('register') }}" class="text-decoration-none">
+                        <i class="fas fa-user-plus"></i> 立即注册
+                    </a>
+                </p>
+            </div>
+        </div>
+        
+        <!-- 演示账号信息 -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6><i class="fas fa-info-circle"></i> 演示信息</h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-2">您可以注册新账号，或使用以下演示账号：</p>
+                <div class="row">
+                    <div class="col-6">
+                        <strong>用户名:</strong> demo
+                    </div>
+                    <div class="col-6">
+                        <strong>密码:</strong> demo123
+                    </div>
+                </div>
+                <button class="btn btn-outline-secondary btn-sm mt-2" onclick="fillDemoAccount()">
+                    <i class="fas fa-magic"></i> 填入演示账号
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function fillDemoAccount() {
+    document.getElementById('username').value = 'demo';
+    document.getElementById('password').value = 'demo123';
+}
+</script>
+{% endblock %}

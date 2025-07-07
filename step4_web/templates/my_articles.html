@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}我的文章 - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-list"></i> 我的文章</h1>
+            <a href="{{ url_for('write_article') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> 写新文章
+            </a>
+        </div>
+
+        <!-- 文章筛选 -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="btn-group" role="group">
+                            <input type="radio" class="btn-check" name="filter" id="all" checked>
+                            <label class="btn btn-outline-primary" for="all" onclick="filterArticles('all')">
+                                全部 ({{ articles|length }})
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="filter" id="published">
+                            <label class="btn btn-outline-success" for="published" onclick="filterArticles('published')">
+                                已发布 ({{ articles|selectattr('is_published')|list|length }})
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="filter" id="draft">
+                            <label class="btn btn-outline-warning" for="draft" onclick="filterArticles('draft')">
+                                草稿 ({{ articles|rejectattr('is_published')|list|length }})
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchInput" 
+                                   placeholder="搜索我的文章..." onkeyup="searchArticles()">
+                            <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文章列表 -->
+        <div id="articles-container">
+            {% if articles %}
+                {% for article in articles %}
+                <div class="card mb-3 article-item" 
+                     data-status="{{ 'published' if article.is_published else 'draft' }}"
+                     data-title="{{ article.title.lower() }}"
+                     data-tags="{{ article.tags|join(' ')|lower }}">
+                    <div class="card-body">
+                        <div class="row">
+                            {% if article.featured_image %}
+                            <div class="col-md-3">
+                                <img src="{{ url_for('static', filename='uploads/' + article.featured_image) }}" 
+                                     class="img-fluid rounded" alt="{{ article.title }}" 
+                                     style="height: 120px; object-fit: cover; width: 100%;">
+                            </div>
+                            <div class="col-md-9">
+                            {% else %}
+                            <div class="col-md-12">
+                            {% endif %}
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title">
+                                            <a href="{{ url_for('article_detail', article_id=article.id) }}" 
+                                               class="text-decoration-none">{{ article.title }}</a>
+                                            {% if not article.is_published %}
+                                            <span class="badge bg-warning ms-2">草稿</span>
+                                            {% endif %}
+                                        </h5>
+                                        
+                                        <p class="card-text text-muted">{{ article.summary[:100] }}...</p>
+                                        
+                                        <div class="mb-2">
+                                            {% for tag in article.tags[:5] %}
+                                            <span class="badge bg-secondary me-1">{{ tag }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar"></i> {{ article.created_at.strftime('%Y-%m-%d %H:%M') }} |
+                                            <i class="fas fa-eye"></i> {{ article.views }} 次浏览 |
+                                            <i class="fas fa-heart"></i> {{ article.likes }} 个赞 |
+                                            <i class="fas fa-comments"></i> {{ article.comments|length }} 条评论
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+                                                type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('article_detail', article_id=article.id) }}">
+                                                    <i class="fas fa-eye"></i> 查看
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('edit_article', article_id=article.id) }}">
+                                                    <i class="fas fa-edit"></i> 编辑
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item" href="#" onclick="togglePublish({{ article.id }}, {{ article.is_published|lower }})">
+                                                    {% if article.is_published %}
+                                                    <i class="fas fa-eye-slash"></i> 取消发布
+                                                    {% else %}
+                                                    <i class="fas fa-upload"></i> 发布
+                                                    {% endif %}
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item text-danger" href="#" onclick="deleteArticle({{ article.id }})">
+                                                    <i class="fas fa-trash"></i> 删除
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5" id="no-articles">
+                    <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                    <h3 class="text-muted">还没有文章</h3>
+                    <p class="text-muted">开始您的写作之旅吧！</p>
+                    <a href="{{ url_for('write_article') }}" class="btn btn-primary">
+                        <i class="fas fa-pen"></i> 写第一篇文章
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- 无搜索结果 -->
+        <div class="text-center py-5 d-none" id="no-results">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h3 class="text-muted">没有找到匹配的文章</h3>
+            <p class="text-muted">尝试使用其他关键词或筛选条件</p>
+        </div>
+    </div>
+
+    <!-- 侧边栏 -->
+    <div class="col-lg-3">
+        <!-- 统计信息 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6><i class="fas fa-chart-bar"></i> 统计信息</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-12 mb-3">
+                        <div class="h4 text-primary">{{ articles|length }}</div>
+                        <small class="text-muted">总文章数</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="h5 text-success">{{ articles|selectattr('is_published')|list|length }}</div>
+                        <small class="text-muted">已发布</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="h5 text-warning">{{ articles|rejectattr('is_published')|list|length }}</div>
+                        <small class="text-muted">草稿</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="h6 text-info">{{ articles|sum(attribute='views') }}</div>
+                        <small class="text-muted">总浏览</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="h6 text-danger">{{ articles|sum(attribute='likes') }}</div>
+                        <small class="text-muted">总点赞</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快捷操作 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6><i class="fas fa-tools"></i> 快捷操作</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('write_article') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> 写新文章
+                    </a>
+                    <button class="btn btn-outline-secondary" onclick="exportArticles()">
+                        <i class="fas fa-download"></i> 导出文章
+                    </button>
+                    <button class="btn btn-outline-info" onclick="showStats()">
+                        <i class="fas fa-chart-line"></i> 详细统计
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 最近活动 -->
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-clock"></i> 最近活动</h6>
+            </div>
+            <div class="card-body">
+                {% if articles %}
+                    {% for article in articles|sort(attribute='created_at', reverse=true)[:3] %}
+                    <div class="mb-2">
+                        <small class="text-muted">{{ article.created_at.strftime('%m-%d') }}</small><br>
+                        <a href="{{ url_for('article_detail', article_id=article.id) }}" 
+                           class="text-decoration-none small">{{ article.title[:30] }}...</a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted small">暂无活动记录</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 筛选文章
+function filterArticles(status) {
+    const articles = document.querySelectorAll('.article-item');
+    const noResults = document.getElementById('no-results');
+    let visibleCount = 0;
+    
+    articles.forEach(article => {
+        const articleStatus = article.dataset.status;
+        if (status === 'all' || articleStatus === status) {
+            article.style.display = 'block';
+            visibleCount++;
+        } else {
+            article.style.display = 'none';
+        }
+    });
+    
+    // 显示/隐藏无结果提示
+    if (visibleCount === 0) {
+        noResults.classList.remove('d-none');
+    } else {
+        noResults.classList.add('d-none');
+    }
+}
+
+// 搜索文章
+function searchArticles() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const articles = document.querySelectorAll('.article-item');
+    const noResults = document.getElementById('no-results');
+    let visibleCount = 0;
+    
+    articles.forEach(article => {
+        const title = article.dataset.title;
+        const tags = article.dataset.tags;
+        
+        if (title.includes(searchTerm) || tags.includes(searchTerm)) {
+            article.style.display = 'block';
+            visibleCount++;
+        } else {
+            article.style.display = 'none';
+        }
+    });
+    
+    // 显示/隐藏无结果提示
+    if (visibleCount === 0 && searchTerm) {
+        noResults.classList.remove('d-none');
+    } else {
+        noResults.classList.add('d-none');
+    }
+}
+
+// 清除搜索
+function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    searchArticles();
+}
+
+// 切换发布状态
+function togglePublish(articleId, isPublished) {
+    const action = isPublished ? '取消发布' : '发布';
+    if (confirm(`确定要${action}这篇文章吗？`)) {
+        // 这里应该发送请求到服务器
+        showToast(`${action}功能开发中...`, 'info');
+    }
+}
+
+// 删除文章
+function deleteArticle(articleId) {
+    if (confirm('确定要删除这篇文章吗？此操作不可恢复！')) {
+        // 这里应该发送请求到服务器
+        showToast('删除功能开发中...', 'info');
+    }
+}
+
+// 导出文章
+function exportArticles() {
+    showToast('导出功能开发中...', 'info');
+}
+
+// 显示详细统计
+function showStats() {
+    showToast('详细统计功能开发中...', 'info');
+}
+
+// 页面加载完成后执行
+document.addEventListener('DOMContentLoaded', function() {
+    // 如果URL中有筛选参数，应用筛选
+    const urlParams = new URLSearchParams(window.location.search);
+    const filter = urlParams.get('filter');
+    if (filter) {
+        document.getElementById(filter).checked = true;
+        filterArticles(filter);
+    }
+});
+</script>
+{% endblock %}

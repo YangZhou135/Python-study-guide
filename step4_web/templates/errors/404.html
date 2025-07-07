@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}页面未找到 - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="text-center py-5">
+                <!-- 404图标 -->
+                <div class="mb-4">
+                    <i class="fas fa-search fa-5x text-muted"></i>
+                </div>
+                
+                <!-- 错误代码 -->
+                <h1 class="display-1 text-primary fw-bold">404</h1>
+                
+                <!-- 错误信息 -->
+                <h2 class="mb-3">页面未找到</h2>
+                <p class="text-muted mb-4">
+                    抱歉，您访问的页面不存在或已被移动。<br>
+                    请检查URL是否正确，或者返回首页继续浏览。
+                </p>
+                
+                <!-- 操作按钮 -->
+                <div class="d-flex justify-content-center gap-3 mb-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="fas fa-home"></i> 返回首页
+                    </a>
+                    <button class="btn btn-outline-secondary" onclick="history.back()">
+                        <i class="fas fa-arrow-left"></i> 返回上页
+                    </button>
+                    <a href="{{ url_for('search') }}" class="btn btn-outline-info">
+                        <i class="fas fa-search"></i> 搜索文章
+                    </a>
+                </div>
+                
+                <!-- 建议链接 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-lightbulb"></i> 您可能在寻找</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('index') }}" class="text-decoration-none">
+                                            <i class="fas fa-home text-primary"></i> 首页
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('search') }}" class="text-decoration-none">
+                                            <i class="fas fa-search text-info"></i> 搜索文章
+                                        </a>
+                                    </li>
+                                    {% if current_user.is_authenticated %}
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('my_articles') }}" class="text-decoration-none">
+                                            <i class="fas fa-list text-success"></i> 我的文章
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('write_article') }}" class="text-decoration-none">
+                                            <i class="fas fa-pen text-warning"></i> 写新文章
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    {% if not current_user.is_authenticated %}
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('login') }}" class="text-decoration-none">
+                                            <i class="fas fa-sign-in-alt text-success"></i> 登录
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('register') }}" class="text-decoration-none">
+                                            <i class="fas fa-user-plus text-info"></i> 注册
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li class="mb-2">
+                                        <a href="{{ url_for('profile') }}" class="text-decoration-none">
+                                            <i class="fas fa-user text-primary"></i> 个人中心
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    <li class="mb-2">
+                                        <a href="mailto:support@example.com" class="text-decoration-none">
+                                            <i class="fas fa-envelope text-danger"></i> 联系我们
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 错误报告 -->
+                <div class="mt-4">
+                    <small class="text-muted">
+                        如果您认为这是一个错误，请
+                        <a href="mailto:support@example.com" class="text-decoration-none">联系我们</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 记录404错误（用于分析）
+document.addEventListener('DOMContentLoaded', function() {
+    // 这里可以发送错误报告到服务器
+    console.log('404 Error:', window.location.href);
+    
+    // 可以添加错误追踪代码
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'page_not_found', {
+            'page_location': window.location.href,
+            'page_title': document.title
+        });
+    }
+});
+
+// 自动建议功能
+function suggestPages() {
+    const currentPath = window.location.pathname;
+    const suggestions = [];
+    
+    // 基于当前路径提供建议
+    if (currentPath.includes('article')) {
+        suggestions.push({
+            text: '浏览所有文章',
+            url: '{{ url_for("index") }}',
+            icon: 'fas fa-list'
+        });
+    }
+    
+    if (currentPath.includes('user')) {
+        suggestions.push({
+            text: '用户登录',
+            url: '{{ url_for("login") }}',
+            icon: 'fas fa-sign-in-alt'
+        });
+    }
+    
+    // 显示建议（如果有的话）
+    if (suggestions.length > 0) {
+        console.log('建议页面:', suggestions);
+    }
+}
+
+// 页面加载完成后执行建议功能
+document.addEventListener('DOMContentLoaded', suggestPages);
+</script>
+{% endblock %}

@@ -1,0 +1,184 @@
+[
+  {
+    "id": 1,
+    "title": "Python Web开发入门指南",
+    "content": "# Python Web开发入门指南\n\n欢迎来到Python Web开发的世界！本文将为您介绍Python Web开发的基础知识。\n\n## 什么是Web开发？\n\nWeb开发是创建网站和Web应用程序的过程。它包括：\n\n- **前端开发**：用户界面和用户体验\n- **后端开发**：服务器逻辑和数据处理\n- **数据库**：数据存储和管理\n\n## Python Web框架\n\nPython有许多优秀的Web框架：\n\n### Flask\n- 轻量级微框架\n- 灵活性高\n- 适合小到中型项目\n\n### Django\n- 全功能框架\n- 内置管理后台\n- 适合大型项目\n\n## 开始您的第一个Flask应用\n\n```python\nfrom flask import Flask\n\napp = Flask(__name__)\n\n@app.route('/')\ndef hello():\n    return 'Hello, World!'\n\nif __name__ == '__main__':\n    app.run(debug=True)\n```\n\n这就是一个最简单的Flask应用！\n\n## 总结\n\nPython Web开发是一个充满可能性的领域。通过学习Flask或Django，您可以创建功能强大的Web应用程序。\n\n祝您学习愉快！",
+    "author": "admin",
+    "tags": [
+      "Python",
+      "Web开发",
+      "Flask",
+      "Django",
+      "入门教程"
+    ],
+    "created_at": "2025-07-01T12:00:04.433530",
+    "views": 25,
+    "likes": 5,
+    "is_published": true,
+    "summary": "本文介绍了Python Web开发的基础知识，包括常用框架Flask和Django的特点，以及如何创建第一个Flask应用。",
+    "featured_image": null,
+    "slug": "python-web开发入门指南-1",
+    "comments": [
+      {
+        "id": 1,
+        "content": "这篇文章写得很好！对初学者很有帮助。",
+        "author": "张三",
+        "article_id": 1,
+        "created_at": "2025-07-07T12:00:04.434385",
+        "is_approved": true
+      },
+      {
+        "id": 2,
+        "content": "Flask确实是一个很好的入门框架，简单易学。",
+        "author": "李四",
+        "article_id": 1,
+        "created_at": "2025-07-07T12:00:04.434471",
+        "is_approved": true
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Flask模板系统详解",
+    "content": "# Flask模板系统详解\n\nFlask使用Jinja2作为模板引擎，提供了强大的模板功能。\n\n## 模板基础\n\n### 变量输出\n```html\n<h1>{{ title }}</h1>\n<p>作者：{{ author }}</p>\n```\n\n### 控制结构\n```html\n{% if user %}\n    <p>欢迎，{{ user.username }}！</p>\n{% else %}\n    <p>请登录</p>\n{% endif %}\n```\n\n### 循环\n```html\n<ul>\n{% for item in items %}\n    <li>{{ item }}</li>\n{% endfor %}\n</ul>\n```\n\n## 模板继承\n\n### 基础模板 (base.html)\n```html\n<!DOCTYPE html>\n<html>\n<head>\n    <title>{% block title %}{% endblock %}</title>\n</head>\n<body>\n    {% block content %}{% endblock %}\n</body>\n</html>\n```\n\n### 子模板\n```html\n{% extends \"base.html\" %}\n\n{% block title %}首页{% endblock %}\n\n{% block content %}\n    <h1>欢迎来到我的网站</h1>\n{% endblock %}\n```\n\n## 过滤器\n\nJinja2提供了许多有用的过滤器：\n\n```html\n{{ name|upper }}  <!-- 转换为大写 -->\n{{ date|strftime('%Y-%m-%d') }}  <!-- 格式化日期 -->\n{{ content|truncate(100) }}  <!-- 截断文本 -->\n```\n\n## 总结\n\n掌握Flask模板系统是Web开发的重要技能。通过模板继承和过滤器，您可以创建灵活且可维护的Web界面。",
+    "author": "张三",
+    "tags": [
+      "Flask",
+      "Jinja2",
+      "模板",
+      "Web开发"
+    ],
+    "created_at": "2025-07-02T12:00:04.433657",
+    "views": 40,
+    "likes": 8,
+    "is_published": true,
+    "summary": "详细介绍Flask的Jinja2模板系统，包括变量输出、控制结构、模板继承和过滤器的使用方法。",
+    "featured_image": null,
+    "slug": "flask模板系统详解-2",
+    "comments": [
+      {
+        "id": 3,
+        "content": "模板继承的概念很重要，谢谢分享！",
+        "author": "王五",
+        "article_id": 2,
+        "created_at": "2025-07-07T12:00:04.434570",
+        "is_approved": true
+      },
+      {
+        "id": 4,
+        "content": "Jinja2的过滤器功能很强大，学到了新知识。",
+        "author": "demo",
+        "article_id": 2,
+        "created_at": "2025-07-07T12:00:04.434651",
+        "is_approved": true
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "数据库设计最佳实践",
+    "content": "# 数据库设计最佳实践\n\n良好的数据库设计是应用程序成功的基础。\n\n## 设计原则\n\n### 1. 规范化\n- 第一范式（1NF）：原子性\n- 第二范式（2NF）：完全函数依赖\n- 第三范式（3NF）：消除传递依赖\n\n### 2. 命名规范\n- 表名使用复数形式\n- 字段名清晰明确\n- 使用一致的命名约定\n\n### 3. 数据类型选择\n- 选择合适的数据类型\n- 考虑存储空间和性能\n- 使用约束确保数据完整性\n\n## 索引策略\n\n### 主键索引\n每个表都应该有主键，通常使用自增ID。\n\n### 外键索引\n外键字段应该创建索引以提高查询性能。\n\n### 复合索引\n对于多字段查询，考虑创建复合索引。\n\n## 性能优化\n\n### 查询优化\n- 避免SELECT *\n- 使用适当的WHERE条件\n- 考虑查询执行计划\n\n### 表结构优化\n- 合理的字段长度\n- 适当的数据类型\n- 避免过度规范化\n\n## 安全考虑\n\n### 数据验证\n- 输入验证\n- 数据类型检查\n- 长度限制\n\n### 访问控制\n- 用户权限管理\n- 数据加密\n- 审计日志\n\n## 总结\n\n数据库设计需要平衡规范化、性能和可维护性。遵循最佳实践可以创建高效、安全的数据库系统。",
+    "author": "李四",
+    "tags": [
+      "数据库",
+      "设计",
+      "性能优化",
+      "安全"
+    ],
+    "created_at": "2025-07-03T12:00:04.433770",
+    "views": 55,
+    "likes": 11,
+    "is_published": true,
+    "summary": "介绍数据库设计的最佳实践，包括规范化原则、命名规范、索引策略、性能优化和安全考虑。",
+    "featured_image": null,
+    "slug": "数据库设计最佳实践-3",
+    "comments": [
+      {
+        "id": 5,
+        "content": "数据库设计确实需要仔细考虑，这些原则很实用。",
+        "author": "admin",
+        "article_id": 3,
+        "created_at": "2025-07-07T12:00:04.434733",
+        "is_approved": true
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "前端开发趋势2024",
+    "content": "# 前端开发趋势2024\n\n前端技术发展迅速，让我们看看2024年的主要趋势。\n\n## 框架和库\n\n### React 18+\n- 并发特性\n- Suspense改进\n- 自动批处理\n\n### Vue 3\n- Composition API\n- 更好的TypeScript支持\n- 性能提升\n\n### Svelte/SvelteKit\n- 编译时优化\n- 更小的包体积\n- 简洁的语法\n\n## 开发工具\n\n### Vite\n- 快速的开发服务器\n- 优化的构建过程\n- 插件生态系统\n\n### TypeScript\n- 类型安全\n- 更好的IDE支持\n- 逐步采用\n\n## CSS发展\n\n### CSS-in-JS\n- Styled Components\n- Emotion\n- 运行时vs编译时\n\n### CSS框架\n- Tailwind CSS持续流行\n- 原子化CSS\n- 设计系统\n\n## 性能优化\n\n### Core Web Vitals\n- LCP (Largest Contentful Paint)\n- FID (First Input Delay)\n- CLS (Cumulative Layout Shift)\n\n### 代码分割\n- 动态导入\n- 路由级分割\n- 组件级分割\n\n## 新兴技术\n\n### WebAssembly\n- 高性能计算\n- 跨语言支持\n- 浏览器原生支持\n\n### PWA\n- 离线功能\n- 推送通知\n- 应用级体验\n\n## 总结\n\n前端开发继续快速发展。保持学习和适应新技术是前端开发者的必备技能。",
+    "author": "王五",
+    "tags": [
+      "前端",
+      "React",
+      "Vue",
+      "性能优化",
+      "趋势"
+    ],
+    "created_at": "2025-07-04T12:00:04.433888",
+    "views": 70,
+    "likes": 14,
+    "is_published": true,
+    "summary": "分析2024年前端开发的主要趋势，包括新框架、开发工具、CSS发展、性能优化和新兴技术。",
+    "featured_image": null,
+    "slug": "前端开发趋势2024-4",
+    "comments": [
+      {
+        "id": 6,
+        "content": "前端技术发展太快了，需要持续学习。",
+        "author": "张三",
+        "article_id": 4,
+        "created_at": "2025-07-07T12:00:04.434814",
+        "is_approved": true
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "API设计指南",
+    "content": "# RESTful API设计指南\n\n设计良好的API是现代应用程序的核心。\n\n## REST原则\n\n### 1. 统一接口\n- 使用标准HTTP方法\n- 资源标识符（URI）\n- 表现层状态转换\n\n### 2. 无状态\n- 每个请求包含所有必要信息\n- 服务器不保存客户端状态\n- 提高可扩展性\n\n### 3. 可缓存\n- 响应应该明确是否可缓存\n- 提高性能和可扩展性\n\n## HTTP方法\n\n### GET\n- 获取资源\n- 幂等操作\n- 可缓存\n\n### POST\n- 创建资源\n- 非幂等操作\n- 不可缓存\n\n### PUT\n- 更新资源\n- 幂等操作\n- 完整替换\n\n### DELETE\n- 删除资源\n- 幂等操作\n\n## URL设计\n\n### 资源命名\n```\nGET /api/users          # 获取用户列表\nGET /api/users/123      # 获取特定用户\nPOST /api/users         # 创建用户\nPUT /api/users/123      # 更新用户\nDELETE /api/users/123   # 删除用户\n```\n\n### 嵌套资源\n```\nGET /api/users/123/posts     # 获取用户的文章\nPOST /api/users/123/posts    # 为用户创建文章\n```\n\n## 响应格式\n\n### 成功响应\n```json\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"id\": 123,\n    \"name\": \"张三\",\n    \"email\": \"zhangsan@example.com\"\n  }\n}\n```\n\n### 错误响应\n```json\n{\n  \"status\": \"error\",\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"邮箱格式不正确\",\n    \"details\": {\n      \"field\": \"email\",\n      \"value\": \"invalid-email\"\n    }\n  }\n}\n```\n\n## 版本控制\n\n### URL版本控制\n```\n/api/v1/users\n/api/v2/users\n```\n\n### 请求头版本控制\n```\nAccept: application/vnd.api+json;version=1\n```\n\n## 安全考虑\n\n### 认证\n- JWT Token\n- OAuth 2.0\n- API Key\n\n### 授权\n- 基于角色的访问控制\n- 资源级权限\n- 速率限制\n\n## 文档\n\n### OpenAPI/Swagger\n- 自动生成文档\n- 交互式测试\n- 代码生成\n\n## 总结\n\n良好的API设计需要考虑一致性、可用性、安全性和可维护性。遵循REST原则和最佳实践可以创建高质量的API。",
+    "author": "demo",
+    "tags": [
+      "API",
+      "REST",
+      "HTTP",
+      "设计",
+      "后端"
+    ],
+    "created_at": "2025-07-05T12:00:04.434007",
+    "views": 85,
+    "likes": 17,
+    "is_published": true,
+    "summary": "全面介绍RESTful API设计的最佳实践，包括REST原则、HTTP方法、URL设计、响应格式、版本控制和安全考虑。",
+    "featured_image": null,
+    "slug": "api设计指南-5",
+    "comments": [
+      {
+        "id": 7,
+        "content": "API设计规范很重要，这篇文章总结得很全面。",
+        "author": "李四",
+        "article_id": 5,
+        "created_at": "2025-07-07T12:00:04.434888",
+        "is_approved": true
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "我的第一篇草稿",
+    "content": "# 我的第一篇草稿\n\n这是一篇还在编写中的文章...\n\n## 待完成的内容\n\n- [ ] 添加更多示例\n- [ ] 完善代码片段\n- [ ] 添加图片\n- [ ] 校对文字\n\n## 当前想法\n\n这里记录一些初步的想法和大纲。\n\n### 主要观点\n\n1. 观点一\n2. 观点二\n3. 观点三\n\n### 需要研究的问题\n\n- 问题A\n- 问题B\n- 问题C\n\n## 参考资料\n\n- 资料1\n- 资料2\n- 资料3\n\n---\n\n*这篇文章还在编写中，请稍后查看完整版本。*",
+    "author": "demo",
+    "tags": [
+      "草稿",
+      "待完成"
+    ],
+    "created_at": "2025-07-06T12:00:04.434126",
+    "views": 0,
+    "likes": 0,
+    "is_published": false,
+    "summary": "这是一篇正在编写中的草稿文章，包含了一些初步的想法和大纲。",
+    "featured_image": null,
+    "slug": "我的第一篇草稿-6",
+    "comments": []
+  }
+]

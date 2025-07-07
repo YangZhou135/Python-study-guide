@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+
+{% block title %}个人中心 - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 用户信息 -->
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header text-center">
+                <h5><i class="fas fa-user-circle"></i> 个人信息</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-user-circle fa-5x text-primary"></i>
+                </div>
+                <h4>{{ user.username }}</h4>
+                <p class="text-muted">{{ user.email }}</p>
+                <div class="row text-center mt-4">
+                    <div class="col-4">
+                        <div class="h5 text-primary">{{ stats.total_articles }}</div>
+                        <small class="text-muted">总文章</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="h5 text-success">{{ stats.total_views }}</div>
+                        <small class="text-muted">总浏览</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="h5 text-danger">{{ stats.total_likes }}</div>
+                        <small class="text-muted">总点赞</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 账户信息 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6><i class="fas fa-info-circle"></i> 账户信息</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <strong>注册时间：</strong><br>
+                    <small class="text-muted">{{ user.created_at.strftime('%Y年%m月%d日') }}</small>
+                </div>
+                <div class="mb-2">
+                    <strong>最后登录：</strong><br>
+                    <small class="text-muted">
+                        {% if user.last_login %}
+                            {{ user.last_login.strftime('%Y-%m-%d %H:%M') }}
+                        {% else %}
+                            首次登录
+                        {% endif %}
+                    </small>
+                </div>
+                <div class="mb-2">
+                    <strong>登录次数：</strong><br>
+                    <small class="text-muted">{{ user.login_count }} 次</small>
+                </div>
+                <div>
+                    <strong>账户状态：</strong><br>
+                    <span class="badge bg-success">
+                        <i class="fas fa-check"></i> 正常
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快捷操作 -->
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-tools"></i> 快捷操作</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('write_article') }}" class="btn btn-primary">
+                        <i class="fas fa-pen"></i> 写新文章
+                    </a>
+                    <a href="{{ url_for('my_articles') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-list"></i> 我的文章
+                    </a>
+                    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                        <i class="fas fa-cog"></i> 账户设置
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="col-lg-8">
+        <!-- 统计概览 -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
+                        <h4 class="text-primary">{{ stats.total_articles }}</h4>
+                        <small class="text-muted">总文章数</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                        <h4 class="text-success">{{ stats.published_articles }}</h4>
+                        <small class="text-muted">已发布</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-edit fa-2x text-warning mb-2"></i>
+                        <h4 class="text-warning">{{ stats.draft_articles }}</h4>
+                        <small class="text-muted">草稿</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-eye fa-2x text-info mb-2"></i>
+                        <h4 class="text-info">{{ stats.total_views }}</h4>
+                        <small class="text-muted">总浏览量</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 最近文章 -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-clock"></i> 最近文章</h5>
+                <a href="{{ url_for('my_articles') }}" class="btn btn-outline-primary btn-sm">
+                    查看全部
+                </a>
+            </div>
+            <div class="card-body">
+                {% if articles[:5] %}
+                    {% for article in articles[:5] %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                        <div>
+                            <h6 class="mb-1">
+                                <a href="{{ url_for('article_detail', article_id=article.id) }}" 
+                                   class="text-decoration-none">{{ article.title }}</a>
+                                {% if not article.is_published %}
+                                <span class="badge bg-warning ms-2">草稿</span>
+                                {% endif %}
+                            </h6>
+                            <small class="text-muted">
+                                {{ article.created_at.strftime('%Y-%m-%d') }} | 
+                                {{ article.views }} 次浏览 | 
+                                {{ article.likes }} 个赞
+                            </small>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('edit_article', article_id=article.id) }}" 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">您还没有发布任何文章</p>
+                        <a href="{{ url_for('write_article') }}" class="btn btn-primary">
+                            <i class="fas fa-pen"></i> 写第一篇文章
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 写作成就 -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-trophy"></i> 写作成就</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="achievement-item mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-medal fa-2x text-warning me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">
+                                        {% if stats.total_articles >= 1 %}
+                                        <i class="fas fa-check text-success"></i> 初出茅庐
+                                        {% else %}
+                                        <i class="fas fa-lock text-muted"></i> 初出茅庐
+                                        {% endif %}
+                                    </h6>
+                                    <small class="text-muted">发布第一篇文章</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="achievement-item mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-star fa-2x text-primary me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">
+                                        {% if stats.total_articles >= 5 %}
+                                        <i class="fas fa-check text-success"></i> 小有成就
+                                        {% else %}
+                                        <i class="fas fa-lock text-muted"></i> 小有成就
+                                        {% endif %}
+                                    </h6>
+                                    <small class="text-muted">发布5篇文章</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="achievement-item mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-fire fa-2x text-danger me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">
+                                        {% if stats.total_views >= 100 %}
+                                        <i class="fas fa-check text-success"></i> 人气作者
+                                        {% else %}
+                                        <i class="fas fa-lock text-muted"></i> 人气作者
+                                        {% endif %}
+                                    </h6>
+                                    <small class="text-muted">获得100次浏览</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="achievement-item mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-heart fa-2x text-danger me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">
+                                        {% if stats.total_likes >= 50 %}
+                                        <i class="fas fa-check text-success"></i> 受欢迎
+                                        {% else %}
+                                        <i class="fas fa-lock text-muted"></i> 受欢迎
+                                        {% endif %}
+                                    </h6>
+                                    <small class="text-muted">获得50个点赞</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 设置模态框 -->
+<div class="modal fade" id="settingsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-cog"></i> 账户设置
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">邮箱地址</label>
+                        <input type="email" class="form-control" value="{{ user.email }}" readonly>
+                        <div class="form-text">邮箱地址暂不支持修改</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                        <div class="form-text">用户名暂不支持修改</div>
+                    </div>
+                    <hr>
+                    <h6>修改密码</h6>
+                    <div class="mb-3">
+                        <label class="form-label">当前密码</label>
+                        <input type="password" class="form-control" id="currentPassword">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">新密码</label>
+                        <input type="password" class="form-control" id="newPassword">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">确认新密码</label>
+                        <input type="password" class="form-control" id="confirmPassword">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="changePassword()">保存更改</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function changePassword() {
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        showToast('请填写所有密码字段', 'error');
+        return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+        showToast('新密码和确认密码不一致', 'error');
+        return;
+    }
+    
+    if (newPassword.length < 6) {
+        showToast('新密码长度至少6个字符', 'error');
+        return;
+    }
+    
+    // 这里应该发送请求到服务器
+    showToast('密码修改功能开发中...', 'info');
+}
+</script>
+{% endblock %}
